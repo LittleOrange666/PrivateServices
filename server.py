@@ -1,11 +1,33 @@
+import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from modules.data import get_db, UserDB
-from modules.tools import verify_password, create_access_token, get_current_user
+from modules.data import get_db, UserDB, Base, engine, SessionLocal
+from modules.tools import verify_password, create_access_token, get_current_user, get_password_hash
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("正在初始化資料庫...")
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        user = db.query(UserDB).filter(UserDB.username == "root").first()
+        if user is None:
+            user = UserDB(username="root", hashed_password=get_password_hash(os.getenv("ROOT_PASSWORD", "root")), is_admin=True)
+            db.add(user)
+            db.commit()
+    finally:
+        db.close()
+
+    yield
+
+    print("正在關閉伺服器並釋放資源...")
+
+app = FastAPI(lifespan=lifespan)
 
 @app.post("/api/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):

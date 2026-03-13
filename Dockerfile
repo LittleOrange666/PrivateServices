@@ -9,4 +9,4 @@ RUN pip3 install -r requirements.txt
 COPY server.py /app/
 COPY modules /app/modules
 
-CMD ["python3", "server.py"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]

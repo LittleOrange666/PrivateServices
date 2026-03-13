@@ -2,3 +2,6 @@ docker
 python-jose
 fastapi
 passlib
+uvicorn
+sqlalchemy
+python-multipart

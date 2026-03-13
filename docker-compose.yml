@@ -12,13 +12,18 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      - backend
   backend:
-    image: littleorange666/private_services:1.0.0
+    image: littleorange666/private_services:0.0.1
     environment:
       - TZ=Asia/Taipei
       - DOCKER_HOST=unix:///app/docker.sock
+      - ROOT_PASSWORD=${ROOT_PASSWORD}
     volumes:
       - ./data/nginx:/app/nginx:rw
       - ./data/backend:/app/data:rw
       - /var/run/docker.sock:/app/docker.sock:rw
     restart: on-failure
+    ports:
+      - "8089:8000"
