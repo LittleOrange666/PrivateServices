@@ -15,7 +15,7 @@ services:
     depends_on:
       - backend
   backend:
-    image: littleorange666/private_services:0.0.2
+    image: littleorange666/private_services:0.0.3
     environment:
       - TZ=Asia/Taipei
       - DOCKER_HOST=unix:///app/docker.sock
