@@ -137,12 +137,13 @@ async def update_nginx_conf():
                     f"    sub_filter 'src=\"/' 'src=\"/{name}/';",
                     "    sub_filter_once off;",
                     "    sub_filter_types text/html text/css application/javascript;",
-                    "    proxy_read_timeout 600s;",
-                    "    proxy_connect_timeout 600s;",
-                    "    proxy_send_timeout 600s;",
+                    "    proxy_read_timeout 3600s;",
+                    "    proxy_connect_timeout 3600s;",
+                    "    proxy_send_timeout 3600s;",
                     "    proxy_buffering off;",
-                    "    proxy_set_header Upgrade $http_upgrade;"
-                    "    proxy_set_header Connection 'upgrade';"
+                    "    proxy_cache off;",
+                    "    proxy_http_version 1.1;"
+                    "    proxy_set_header Connection '';"
                     "}"
                 ]
                 add_lines.extend(cur)
