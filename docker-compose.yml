@@ -22,6 +22,7 @@ services:
       - TZ=Asia/Taipei
       - DOCKER_HOST=unix:///app/docker.sock
       - ROOT_PASSWORD=${ROOT_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
     volumes:
       - ./data/nginx:/app/nginx:rw
       - ./data/backend:/app/data:rw

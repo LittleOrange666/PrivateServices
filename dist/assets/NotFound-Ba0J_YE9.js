@@ -1,0 +1,1 @@
+import{_ as s,o as r,c as a,a as e,e as n,t as l,F as u}from"./index-BhNpHKzP.js";const d={},p=["textContent"];function f(o,t){return r(),a(u,null,[t[2]||(t[2]=e("h1",null,"404 Not Found",-1)),e("p",null,[t[0]||(t[0]=n("頁面 '",-1)),e("span",{textContent:l(o.$route.path)},null,8,p),t[1]||(t[1]=n("' 不存在",-1))])],64)}const m=s(d,[["render",f]]);export{m as default};
