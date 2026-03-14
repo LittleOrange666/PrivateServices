@@ -4,21 +4,22 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.security import OAuth2PasswordRequestForm
+from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from modules.auth import verify_password, create_access_token, get_current_user, get_password_hash
 from modules.data import get_db, UserDB, Base, engine, SessionLocal, ServicesDB
-from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf
+from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf, restart_nginx
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("正在初始化nginx配置...")
+    logger.info("正在初始化nginx配置...")
     shutil.copy("/app/templates/nginx/nginx.conf", "/app/nginx/")
     shutil.copy("/app/templates/nginx/default.conf", "/app/nginx/")
-    print("正在初始化資料庫...")
+    logger.info("正在初始化資料庫...")
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
@@ -29,14 +30,13 @@ async def lifespan(app: FastAPI):
             db.commit()
     finally:
         db.close()
-    print("正在追加nginx配置...")
     await update_nginx_conf()
-    print("初始化完成!")
+    logger.info("初始化完成!")
 
 
     yield
 
-    print("正在關閉伺服器並釋放資源...")
+    logger.info("正在關閉伺服器並釋放資源...")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -134,4 +134,26 @@ async def delete_service(user_in: ServiceCreate, current_user: UserDB = Depends(
         raise HTTPException(status_code=400, detail="服務不存在")
     db.delete(service)
     db.commit()
+    await update_nginx_conf()
     return {"message": "服務刪除成功"}
+
+class ServicePut(BaseModel):
+    name: str
+    info: ServiceInfo
+
+@app.put("/api/services")
+async def update_service(user_in: ServicePut, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+    name = user_in.name
+    service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
+    if service is None:
+        raise HTTPException(status_code=400, detail="服務不存在")
+    info = user_in.info
+    host = "" if info["present"] != "http" else info["present_info"]["http"]["hostname"]+":"+str(info["present_info"]["http"]["port"])
+    service.service_info = info
+    service.host = host
+    db.commit()
+    await update_nginx_conf()
+    restart_nginx()
+    return {"message": "更新成功"}

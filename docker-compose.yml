@@ -1,6 +1,7 @@
 services:
   nginx:
     image: nginx:latest
+    container_name: private_services_nginx
     environment:
       - TZ=Asia/Taipei
     ports:
@@ -16,7 +17,7 @@ services:
       backend:
         condition: service_healthy
   backend:
-    image: littleorange666/private_services:0.0.4
+    image: littleorange666/private_services:0.0.5
     environment:
       - TZ=Asia/Taipei
       - DOCKER_HOST=unix:///app/docker.sock

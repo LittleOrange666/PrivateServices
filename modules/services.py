@@ -1,5 +1,8 @@
 from typing import TypedDict, Literal, NotRequired
 
+from loguru import logger
+from python_on_whales import docker
+
 from .data import SessionLocal, ServicesDB
 
 ActivateType = Literal["none", "docker-compose"]
@@ -40,11 +43,12 @@ def get_default_service_info() -> ServiceInfo:
     }
 
 async def update_nginx_conf():
+    logger.info("正在更新nginx配置...")
     with open("/app/templates/nginx/default.conf") as f:
         lines = f.readlines()
     place_line = [i for i in range(len(lines)) if "SERVICE_CONFIG_PLACEHOLDER" in lines[i]]
     if len(place_line) == 0:
-        print("template error")
+        logger.error("template error")
         return
     add_lines = []
     db = SessionLocal()
@@ -53,7 +57,7 @@ async def update_nginx_conf():
         for service in services:
             if service.host:
                 name = service.service_name
-                host = services.host
+                host = service.host
                 cur = [
                     f"location /{name}/ {{",
                     "    auth_request /auth-check;",
@@ -68,3 +72,6 @@ async def update_nginx_conf():
     output_lines = lines[:place_line[0]] + ["    "+l+"\n" for l in add_lines] + lines[place_line[0]+1:]
     with open("/app/nginx/default.conf", "w") as f:
         f.writelines(output_lines)
+
+def restart_nginx():
+    docker.container.restart("private_services_nginx")
