@@ -14,6 +14,9 @@
         "config": {
           "ports": {
             "7860": 7860
+          },
+          "environment": {
+            "GRADIO_ROOT_PATH": "/pdf"
           }
         }
       }

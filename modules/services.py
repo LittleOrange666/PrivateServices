@@ -132,18 +132,22 @@ async def update_nginx_conf():
                     # "    auth_request_set $user_id $upstream_http_x_user_id;",
                     # "    proxy_set_header X-User-ID $user_id;",
                     f"    proxy_pass http://{host}/;",
-                    f"    proxy_redirect / /{name}/;",
-                    f"    sub_filter 'href=\"/' 'href=\"/{name}/';",
-                    f"    sub_filter 'src=\"/' 'src=\"/{name}/';",
-                    "    sub_filter_once off;",
-                    "    sub_filter_types text/html text/css application/javascript;",
+                    # f"    proxy_redirect / /{name}/;",
+                    # f"    sub_filter 'href=\"/' 'href=\"/{name}/';",
+                    # f"    sub_filter 'src=\"/' 'src=\"/{name}/';",
+                    # "    sub_filter_once off;",
+                    # "    sub_filter_types text/html text/css application/javascript;",
                     "    proxy_read_timeout 3600s;",
                     "    proxy_connect_timeout 3600s;",
                     "    proxy_send_timeout 3600s;",
                     "    proxy_buffering off;",
                     "    proxy_cache off;",
-                    "    proxy_http_version 1.1;"
-                    "    proxy_set_header Connection '';"
+                    "    proxy_redirect off;",
+                    "    proxy_http_version 1.1;",
+                    "    proxy_set_header Connection 'upgrade';",
+                    "    proxy_set_header Upgrade $http_upgrade;",
+                    "    proxy_set_header X-Forwarded-Host $host;",
+                    "    proxy_set_header X-Forwarded-Proto $scheme;",
                     "}"
                 ]
                 add_lines.extend(cur)
