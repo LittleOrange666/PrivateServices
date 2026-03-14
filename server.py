@@ -7,11 +7,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 from starlette.responses import JSONResponse
 
 from modules.auth import verify_password, create_access_token, get_current_user, get_password_hash
 from modules.data import get_db, UserDB, Base, engine, SessionLocal, ServicesDB
-from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf, restart_nginx
+from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf, restart_nginx, service_on, \
+    service_off
 
 
 @asynccontextmanager
@@ -151,9 +153,32 @@ async def update_service(user_in: ServicePut, current_user: UserDB = Depends(get
         raise HTTPException(status_code=400, detail="服務不存在")
     info = user_in.info
     host = "" if info["present"] != "http" else info["present_info"]["http"]["hostname"]+":"+str(info["present_info"]["http"]["port"])
-    service.service_info = info
+    service.info = info
     service.host = host
+    flag_modified(service, "info")
     db.commit()
     await update_nginx_conf()
     restart_nginx()
     return {"message": "更新成功"}
+
+@app.post("/api/services/on")
+async def start_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+    name = user_in.name
+    service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
+    if service is None:
+        raise HTTPException(status_code=400, detail="服務不存在")
+    await service_on(service)
+    return {"message": "啟動成功"}
+
+@app.post("/api/services/off")
+async def stop_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+    name = user_in.name
+    service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
+    if service is None:
+        raise HTTPException(status_code=400, detail="服務不存在")
+    await service_off(service)
+    return {"message": "停止成功"}
