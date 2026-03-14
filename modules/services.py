@@ -129,9 +129,14 @@ async def update_nginx_conf():
                 cur = [
                     f"location /{name}/ {{",
                     "    auth_request /auth-check;",
-                    "    auth_request_set $user_id $upstream_http_x_user_id;",
-                    "    proxy_set_header X-User-ID $user_id;",
+                    # "    auth_request_set $user_id $upstream_http_x_user_id;",
+                    # "    proxy_set_header X-User-ID $user_id;",
                     f"    proxy_pass http://{host}/;",
+                    f"    proxy_redirect / /{name}/;",
+                    f"    sub_filter 'href=\"/' 'href=\"/{name}/';",
+                    f"    sub_filter 'src=\"/' 'src=\"/{name}/';",
+                    "    sub_filter_once off;",
+                    "    sub_filter_types text/html text/css application/javascript;",
                     "}"
                 ]
                 add_lines.extend(cur)
@@ -171,26 +176,3 @@ async def service_off(service: ServicesDB):
             client = docker.from_env()
             name = service.service_name + "_container"
             client.containers.get(name).stop()
-{
-    "name": "pdf",
-    "info": {
-        "activate": "docker",
-        "present": "http",
-        "activate_info": {
-            "docker": {
-                "image_name": "awwaawwa/pdfmathtranslate-next",
-                "config": {
-                    "ports": {
-                        "7860": 7860,
-                    }
-                }
-            }
-        },
-        "present_info": {
-            "http": {
-                "hostname": "host.docker.internal",
-                "port": 7860
-            }
-        }
-    }
-}

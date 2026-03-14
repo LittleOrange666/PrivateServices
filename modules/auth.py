@@ -51,3 +51,20 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)):
     if user is None:
         raise credentials_exception
     return user
+
+
+async def check_login(request: Request):
+    credentials_exception = HTTPException(status_code=401, detail="無效的憑證")
+    token_cookie = request.cookies.get("access_token")
+    if not token_cookie or not token_cookie.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="未登入")
+
+    token = token_cookie.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    return "OK"

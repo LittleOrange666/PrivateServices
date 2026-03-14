@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 from starlette.responses import JSONResponse
 
-from modules.auth import verify_password, create_access_token, get_current_user, get_password_hash
+from modules.auth import verify_password, create_access_token, get_current_user, get_password_hash, check_login
 from modules.data import get_db, UserDB, Base, engine, SessionLocal, ServicesDB
 from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf, restart_nginx, service_on, \
     service_off
@@ -78,11 +78,8 @@ async def verify_admin(current_user: UserDB = Depends(get_current_user)):
     return response
 
 @app.get("/api/verify")
-async def verify_user(current_user: UserDB = Depends(get_current_user)):
-    # get_current_user 有做驗證了
-    response = JSONResponse(content={"status": "ok", "user": current_user.username})
-    response.headers["X-User-ID"] = current_user.username
-    response.headers["X-User-Role"] = "admin" if current_user.is_admin else "user"
+async def verify_user(ok: str = Depends(check_login)):
+    response = JSONResponse(content={"status": "ok"})
     return response
 
 class AService(BaseModel):
