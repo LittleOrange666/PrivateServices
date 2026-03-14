@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 from starlette.responses import JSONResponse
 
-from modules.auth import verify_password, create_access_token, get_current_user, get_password_hash, check_login
+from modules.auth import verify_password, create_access_token, get_password_hash, check_login, \
+    check_admin, UserInfo
 from modules.data import get_db, UserDB, Base, engine, SessionLocal, ServicesDB
 from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf, restart_nginx, service_on, \
     service_off
@@ -69,17 +70,15 @@ async def logout(response: Response):
     return {"message": "已登出"}
 
 @app.get("/api/verify-admin")
-async def verify_admin(current_user: UserDB = Depends(get_current_user)):
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
-    response = JSONResponse(content={"status": "ok", "user": current_user.username})
-    response.headers["X-User-ID"] = current_user.username
-    response.headers["X-User-Role"] = "admin" if current_user.is_admin else "user"
+async def verify_admin(current_user: UserInfo = Depends(check_admin)):
+    response = JSONResponse(content={"status": "ok", "user": current_user["sub"]})
+    response.headers["X-User-ID"] = current_user["sub"]
+    response.headers["X-User-Role"] = current_user["role"]
     return response
 
 @app.get("/api/verify")
-async def verify_user(ok: str = Depends(check_login)):
-    response = JSONResponse(content={"status": "ok"})
+async def verify_user(current_user: UserInfo = Depends(check_login)):
+    response = JSONResponse(content={"status": "ok", "user": current_user["sub"]})
     return response
 
 class AService(BaseModel):
@@ -91,9 +90,7 @@ class ServiceList(BaseModel):
     services: list[AService]
 
 @app.get("/api/services", response_model=ServiceList)
-async def get_services(current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+async def get_services(current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
     services = db.query(ServicesDB).all()
     ret = []
     for service in services:
@@ -110,9 +107,7 @@ class ServiceCreate(BaseModel):
     name: str
 
 @app.post("/api/services")
-async def create_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+async def create_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
     name = user_in.name
     service = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service:
@@ -124,9 +119,7 @@ async def create_service(user_in: ServiceCreate, current_user: UserDB = Depends(
     return {"message": "服務創建成功"}
 
 @app.delete("/api/services")
-async def delete_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+async def delete_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
     name = user_in.name
     service = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service is None:
@@ -141,9 +134,7 @@ class ServicePut(BaseModel):
     info: ServiceInfo
 
 @app.put("/api/services")
-async def update_service(user_in: ServicePut, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+async def update_service(user_in: ServicePut, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
     name = user_in.name
     service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service is None:
@@ -159,9 +150,7 @@ async def update_service(user_in: ServicePut, current_user: UserDB = Depends(get
     return {"message": "更新成功"}
 
 @app.post("/api/services/on")
-async def start_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+async def start_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
     name = user_in.name
     service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service is None:
@@ -170,9 +159,7 @@ async def start_service(user_in: ServiceCreate, current_user: UserDB = Depends(g
     return {"message": "啟動成功"}
 
 @app.post("/api/services/off")
-async def stop_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+async def stop_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
     name = user_in.name
     service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service is None:
