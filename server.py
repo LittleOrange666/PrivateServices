@@ -1,17 +1,23 @@
 import os
+import shutil
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from modules.data import get_db, UserDB, Base, engine, SessionLocal
-from modules.tools import verify_password, create_access_token, get_current_user, get_password_hash
+from modules.auth import verify_password, create_access_token, get_current_user, get_password_hash
+from modules.data import get_db, UserDB, Base, engine, SessionLocal, ServicesDB
+from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("正在初始化nginx配置...")
+    shutil.copy("/app/templates/nginx/nginx.conf", "/app/nginx/")
+    shutil.copy("/app/templates/nginx/default.conf", "/app/nginx/")
     print("正在初始化資料庫...")
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
@@ -23,12 +29,20 @@ async def lifespan(app: FastAPI):
             db.commit()
     finally:
         db.close()
+    print("正在追加nginx配置...")
+    await update_nginx_conf()
+    print("初始化完成!")
+
 
     yield
 
     print("正在關閉伺服器並釋放資源...")
 
 app = FastAPI(lifespan=lifespan)
+
+@app.get("/health_check")
+async def health_check():
+    return {"status": "ok"}
 
 @app.post("/api/login")
 async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -68,3 +82,56 @@ async def verify_user(current_user: UserDB = Depends(get_current_user)):
     response.headers["X-User-ID"] = current_user.username
     response.headers["X-User-Role"] = "admin" if current_user.is_admin else "user"
     return response
+
+class AService(BaseModel):
+    service_name: str
+    host: str
+    info: ServiceInfo
+
+class ServiceList(BaseModel):
+    services: list[AService]
+
+@app.get("/api/services", response_model=ServiceList)
+async def get_services(current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+    services = db.query(ServicesDB).all()
+    ret = []
+    for service in services:
+        ret.append({
+            "service_name": service.service_name,
+            "host": service.host,
+            "info": service.info,
+                   })
+    return {
+        "services": ret
+    }
+
+class ServiceCreate(BaseModel):
+    name: str
+
+@app.post("/api/services")
+async def create_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+    name = user_in.name
+    service = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
+    if service:
+        raise HTTPException(status_code=400, detail="服務已存在")
+
+    service = ServicesDB(service_name=name, host="", info=get_default_service_info())
+    db.add(service)
+    db.commit()
+    return {"message": "服務創建成功"}
+
+@app.delete("/api/services")
+async def delete_service(user_in: ServiceCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="權限不足，僅限管理員")
+    name = user_in.name
+    service = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
+    if service is None:
+        raise HTTPException(status_code=400, detail="服務不存在")
+    db.delete(service)
+    db.commit()
+    return {"message": "服務刪除成功"}

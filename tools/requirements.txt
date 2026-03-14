@@ -5,3 +5,4 @@ passlib
 uvicorn
 sqlalchemy
 python-multipart
+python-on-whales

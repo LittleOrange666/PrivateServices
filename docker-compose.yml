@@ -13,9 +13,10 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
   backend:
-    image: littleorange666/private_services:0.0.3
+    image: littleorange666/private_services:0.0.4
     environment:
       - TZ=Asia/Taipei
       - DOCKER_HOST=unix:///app/docker.sock
@@ -23,7 +24,14 @@ services:
     volumes:
       - ./data/nginx:/app/nginx:rw
       - ./data/backend:/app/data:rw
+      - ./templates:/app/templates:ro
       - /var/run/docker.sock:/app/docker.sock:rw
     restart: on-failure
     ports:
       - "8089:8000"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import http.client; c=http.client.HTTPConnection('localhost', 8000); c.request('GET', '/health_check'); r=c.getresponse(); exit(0) if r.status < 400 else exit(1)"]
+      interval: 10s
+      start_period: 10s
+      timeout: 3s
+      retries: 5
