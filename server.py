@@ -90,7 +90,7 @@ class ServiceList(BaseModel):
     services: list[AService]
 
 @app.get("/api/services", response_model=ServiceList)
-async def get_services(current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
+async def get_services(current_user: UserInfo = Depends(check_login), db: Session = Depends(get_db)):
     services = db.query(ServicesDB).all()
     ret = []
     for service in services:
