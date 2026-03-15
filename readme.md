@@ -126,3 +126,35 @@
   }
 }
 ```
+```json
+{
+  "name": "ai",
+  "info": {
+    "activate": "docker",
+    "present": "http",
+    "activate_info": {
+      "docker": {
+        "image_name": "ghcr.io/open-webui/open-webui:main",
+        "config": {
+          "ports": {
+            "8080": 7960
+          },
+          "volumes": {
+            "open-webui": {
+              "bind": "/app/backend/data",
+              "mode": "rw"
+            }
+          }
+        }
+      }
+    },
+    "present_info": {
+      "http": {
+        "hostname": "host.docker.internal",
+        "port": 7960,
+        "use_root": true
+      }
+    }
+  }
+}
+```

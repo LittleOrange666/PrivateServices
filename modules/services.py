@@ -88,6 +88,7 @@ class ActivateInfo(TypedDict):
 class HttpInfo(TypedDict):
     hostname: str
     port: int
+    use_root: NotRequired[bool]
 
 
 class PresentInfo(TypedDict):
@@ -126,8 +127,9 @@ async def update_nginx_conf():
             if service.host:
                 name = service.service_name
                 host = service.host
+                path = f"/{name}/"
                 cur = [
-                    f"location /{name}/ {{",
+                    f"location {path} {{",
                     "    auth_request /auth-check;",
                     # "    auth_request_set $user_id $upstream_http_x_user_id;",
                     # "    proxy_set_header X-User-ID $user_id;",
