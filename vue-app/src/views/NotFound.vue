@@ -9,7 +9,8 @@
 
             <p class="mt-6 text-base leading-7 text-slate-600">
                 很抱歉，我們找不到您要求的頁面：
-                <code class="mx-1 rounded bg-slate-100 px-2 py-1 font-mono text-sm font-medium text-indigo-700 border border-slate-200">
+                <code
+                    class="mx-1 rounded bg-slate-100 px-2 py-1 font-mono text-sm font-medium text-indigo-700 border border-slate-200">
                     {{ $route.path }}
                 </code>
             </p>

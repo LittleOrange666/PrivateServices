@@ -1,5 +1,22 @@
 # Private Services
 
+A Tool to manage and supply private services for your own.
+
+## Requirements
+
++ git (optional, you can just download zip)
++ docker (required)
++ docker-compose (required)
+
+## Install
+
+clone this repo then run
+
+```bash
+./init.sh
+docker compose up -d
+```
+
 ## Config samples
 
 ```json

@@ -53,7 +53,6 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import axios from "axios"
-import {show_modal} from "@/utils/modal.ts";
 import {useRouter} from "vue-router";
 
 const username = ref('');

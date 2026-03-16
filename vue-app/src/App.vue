@@ -1,6 +1,6 @@
 <template>
     <div id="main_area">
-        <RouterView />
+        <RouterView/>
     </div>
     <MyModal/>
 </template>

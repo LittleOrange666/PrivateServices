@@ -2,8 +2,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap';
 import './output.css'
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import {createApp} from 'vue'
+import {createPinia} from 'pinia'
 
 import App from './App.vue'
 import router from './router'
