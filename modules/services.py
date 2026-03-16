@@ -1,6 +1,7 @@
 from typing import TypedDict, Literal, NotRequired, Union
 
 import docker
+from docker.errors import NotFound
 from loguru import logger
 from python_on_whales import DockerClient
 
@@ -183,8 +184,26 @@ async def service_on(service: ServicesDB):
         case "docker":
             client = docker.from_env()
             name = service.service_name + "_container"
-            client.containers.run(info["activate_info"]["docker"]["image_name"], detach=True, name=name,
-                                  **info["activate_info"]["docker"]["config"])
+            image_name = info["activate_info"]["docker"]["image_name"]
+            config = info["activate_info"]["docker"]["config"]
+
+            try:
+                container = client.containers.get(name)
+                print(f"容器 {name} 已存在。")
+                if container.status != "running":
+                    print(f"容器已停止，正在啟動...")
+                    container.start()
+                else:
+                    print(f"容器正在運行中。")
+
+            except NotFound:
+                print(f"容器 {name} 不存在，正在建立並執行...")
+                client.containers.run(
+                    image_name,
+                    detach=True,
+                    name=name,
+                    **config
+                )
 
 
 async def service_off(service: ServicesDB):

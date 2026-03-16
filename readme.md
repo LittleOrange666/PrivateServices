@@ -67,7 +67,8 @@ docker compose up -d
             "CLIP_PACKAGE": "clip",
             "OPENCLIP_PACKAGE": "open-clip-torch",
             "STABLE_DIFFUSION_REPO": "https://github.com/w-e-w/stablediffusion.git",
-            "TORCH_INDEX_URL": "https://download.pytorch.org/whl/cu130"
+            "TORCH_INDEX_URL": "https://download.pytorch.org/whl/cu130",
+            "TORCH_COMMAND": "pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu130"
           },
           "volumes": {
             "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/inputs": {
