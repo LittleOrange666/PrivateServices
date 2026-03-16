@@ -57,6 +57,8 @@ class DockerRunArgs(TypedDict, total=False):
     environment: Union[dict[str, str], list[str]]
     ports: dict[str, Union[int, tuple, list]]
     network: str
+    runtime: str
+    device_requests: list[DeviceRequest]
 
     # 策略與限制
     restart_policy: RestartPolicy

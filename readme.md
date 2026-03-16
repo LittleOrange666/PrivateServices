@@ -55,51 +55,52 @@ docker compose up -d
     "present": "http",
     "activate_info": {
       "docker": {
-        "image_name": "docker-stable-diffusion-webui",
+        "image_name": "docker-stable-diffusion-webui-save",
         "config": {
           "ports": {
-            "7861": 7861
+            "8080": 7861
           },
           "environment": {
-            "GRADIO_ROOT_PATH": "/sd"
+            "NVIDIA_VISIBLE_DEVICES": "all",
+            "NVIDIA_DRIVER_CAPABILITIES": "compute,utility",
+            "GRADIO_ROOT_PATH": "/sd",
+            "CLIP_PACKAGE": "clip",
+            "OPENCLIP_PACKAGE": "open-clip-torch",
+            "STABLE_DIFFUSION_REPO": "https://github.com/w-e-w/stablediffusion.git",
+            "TORCH_INDEX_URL": "https://download.pytorch.org/whl/cu130"
           },
-          "device_requests": [
-            {
-              "count": -1,
-              "capabilities": [["gpu"]]
-            }
-          ],
           "volumes": {
-            "/mnt/d/ai/stable-diffusion-webui/inputs": {
+            "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/inputs": {
               "bind": "/app/stable-diffusion-webui/inputs",
               "mode": "rw"
             },
-            "/mnt/d/ai/stable-diffusion-webui/textual_inversion_templates": {
+            "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/textual_inversion_templates": {
               "bind": "/app/stable-diffusion-webui/textual_inversion_templates",
               "mode": "rw"
             },
-            "/mnt/d/ai/stable-diffusion-webui/embeddings": {
+            "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/embeddings": {
               "bind": "/app/stable-diffusion-webui/embeddings",
               "mode": "rw"
             },
-            "/mnt/d/ai/stable-diffusion-webui/extensions": {
+            "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/extensions": {
               "bind": "/app/stable-diffusion-webui/extensions",
               "mode": "rw"
             },
-            "/mnt/d/ai/stable-diffusion-webui/models": {
+            "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/models": {
               "bind": "/app/stable-diffusion-webui/models",
               "mode": "rw"
             },
-            "/mnt/d/ai/stable-diffusion-webui/localizations": {
+            "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/localizations": {
               "bind": "/app/stable-diffusion-webui/localizations",
               "mode": "rw"
             },
-            "/mnt/d/ai/stable-diffusion-webui/outputs": {
+            "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/outputs": {
               "bind": "/app/stable-diffusion-webui/outputs",
               "mode": "rw"
             }
           },
-          "command": ["--skip-torch-cuda-test", "--no-half", "--no-half-vae", "--precision", "full"]
+          "command": ["--skip-torch-cuda-test", "--no-half", "--no-half-vae", "--precision", "full", "--subpath", "/sd"],
+          "runtime": "nvidia"
         }
       }
     },
