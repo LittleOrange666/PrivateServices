@@ -54,12 +54,14 @@
 import {ref} from "vue";
 import axios from "axios"
 import {useRouter} from "vue-router";
+import {useAuthStore} from "@/stores/auth.ts";
 
 const username = ref('');
 const password = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
 const router = useRouter();
+const auth = useAuthStore();
 
 async function handleLogin() {
     const params = new URLSearchParams();
@@ -70,6 +72,8 @@ async function handleLogin() {
         // 登入成功，導向首頁
         //await show_modal("成功", "登入成功");
         await router.push("/");
+        auth.loaded = false;
+        await auth.load();
     } else {
         errorMessage.value = res.data.detail;
         //await show_modal("失敗", res.data.detail);

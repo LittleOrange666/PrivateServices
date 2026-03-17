@@ -78,7 +78,7 @@ async def verify_admin(current_user: UserInfo = Depends(check_admin)):
 
 @app.get("/api/verify")
 async def verify_user(current_user: UserInfo = Depends(check_login)):
-    response = JSONResponse(content={"status": "ok", "user": current_user["sub"]})
+    response = JSONResponse(content={"status": "ok", "user": current_user["sub"], "role": current_user["role"]})
     return response
 
 class AService(BaseModel):

@@ -55,7 +55,7 @@ docker compose up -d
     "present": "http",
     "activate_info": {
       "docker": {
-        "image_name": "docker-stable-diffusion-webui-save",
+        "image_name": "docker-stable-diffusion-webui-save7",
         "config": {
           "ports": {
             "8080": 7861
@@ -68,7 +68,8 @@ docker compose up -d
             "OPENCLIP_PACKAGE": "open-clip-torch",
             "STABLE_DIFFUSION_REPO": "https://github.com/w-e-w/stablediffusion.git",
             "TORCH_INDEX_URL": "https://download.pytorch.org/whl/cu130",
-            "TORCH_COMMAND": "pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu130"
+            "TORCH_COMMAND": "pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu130",
+            "REQS_FILE": "requirements.txt"
           },
           "volumes": {
             "D:/ai/stable-diffusion-webui/docker-stable-diffusion-webui/inputs": {
@@ -100,7 +101,7 @@ docker compose up -d
               "mode": "rw"
             }
           },
-          "command": ["--skip-torch-cuda-test", "--no-half", "--no-half-vae", "--precision", "full", "--subpath", "/sd"],
+          "command": ["--update-check", "--listen", "--port", "8080", "--skip-torch-cuda-test", "--disable-nan-check", "--disable-safe-unpickle", "--no-half", "--no-half-vae", "--precision", "full", "--subpath", "/sd"],
           "runtime": "nvidia"
         }
       }

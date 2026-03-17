@@ -42,10 +42,19 @@
 import {onMounted, ref} from "vue";
 import axios from "axios";
 import {show_modal} from "@/utils/modal.ts";
+import {useAuthStore} from "@/stores/auth.ts";
+import {useRouter} from "vue-router";
 
 const names = ref<string[]>([]);
+const auth = useAuthStore();
+const router = useRouter();
 
 async function loadData() {
+    await auth.load();
+    if (auth.role == "unauthorized"){
+        await router.push("/login");
+        return;
+    }
     const res = await axios.get("/api/services");
     const out = [];
     for (let service of res.data.services) {
