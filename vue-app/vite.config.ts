@@ -15,4 +15,17 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    port: 8090,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8781",
+        changeOrigin: true,
+      },
+      "/swaggerui": {
+        target: "http://localhost:8781",
+        changeOrigin: true,
+      },
+    }
+  }
 })

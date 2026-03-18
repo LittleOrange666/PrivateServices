@@ -33,7 +33,6 @@ export interface DockerInfo{
     image: string
     command?: string | string[]
     remove?: boolean
-    restart?: RestartPolicy
     volumes?: VolumeConfig[]
 
     environment?: string[] | Record<string, string>

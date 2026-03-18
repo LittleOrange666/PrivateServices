@@ -42,6 +42,11 @@
                                     class="px-3 py-1.5 bg-rose-50 text-rose-700 text-sm font-bold rounded-lg hover:bg-rose-100 transition-colors">
                                 停止
                             </button>
+
+                            <button @click="handleRemove(name)"
+                                    class="px-3 py-1.5 bg-rose-50 text-rose-700 text-sm font-bold rounded-lg hover:bg-rose-100 transition-colors">
+                                刪除容器
+                            </button>
                         </div>
                     </div>
 
@@ -156,6 +161,19 @@ async function handleStart(name: string) {
 async function handleStop(name: string) {
     try{
         const res = await axios.post("/api/services/off", {name: name});
+        if (res.status === 200) {
+            await show_modal("成功", res.data.message);
+        }else{
+            await show_modal("失敗", "Error "+res.status);
+        }
+    }catch (e){
+        await show_modal("失敗", (e as Error).message);
+    }
+}
+
+async function handleRemove(name: string) {
+    try{
+        const res = await axios.post("/api/services/remove", {name: name});
         if (res.status === 200) {
             await show_modal("成功", res.data.message);
         }else{

@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import type {HttpInfo} from "@/utils/types.ts";
 
-const model = defineModel<HttpInfo>({ required: true });
+const model = defineModel<HttpInfo>({required: true});
 
 const updatePort = (e: Event) => {
     const val = (e.target as HTMLInputElement).value;

@@ -42,8 +42,8 @@
                 class="ml-8 mt-2 overflow-hidden transition-all"
                 :class="[info.activate === opt.id ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none']"
             >
-                <DockerComposeOption v-if="opt.id === 'docker-compose'" />
-                <DockerOption v-if="opt.id === 'docker'" v-model="info.activate_info.docker" />
+                <DockerComposeOption v-if="opt.id === 'docker-compose'"/>
+                <DockerOption v-if="opt.id === 'docker'" v-model="info.activate_info.docker as DockerInfo"/>
             </div>
         </div>
     </div>
@@ -104,11 +104,12 @@
 <script setup lang="ts">
 import DockerOption from './DockerOption.vue';
 import DockerComposeOption from './DockerComposeOption.vue';
-import type {ActivateType, HttpInfo, PresentType, ServiceInfo} from "@/utils/types.ts";
+import type {ActivateType, DockerInfo, HttpInfo, PresentType, ServiceInfo} from "@/utils/types.ts";
 import HttpOption from "@/components/HttpOption.vue";
 import axios from "axios";
 import {show_modal} from "@/utils/modal.ts";
-interface Props{
+
+interface Props {
     name: string;
 }
 
@@ -126,19 +127,19 @@ const options2 = [
     {id: 'http', label: 'HTTP', component: 'HttpOption'},
 ];
 
-async function handleSave(){
+async function handleSave() {
     const data = {
         "name": props.name,
         "info": info.value
     }
-    try{
+    try {
         const res = await axios.put("/api/services", data);
         if (res.status === 200) {
             await show_modal("成功", res.data.message);
-        }else{
-            await show_modal("失敗", "Error "+res.status);
+        } else {
+            await show_modal("失敗", "Error " + res.status);
         }
-    }catch (e){
+    } catch (e) {
         await show_modal("失敗", (e as Error).message);
     }
 }

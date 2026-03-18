@@ -2,6 +2,7 @@ from typing import TypedDict, Literal, NotRequired, Union, Required
 
 import docker
 from docker.errors import NotFound
+from fastapi import HTTPException
 from loguru import logger
 from python_on_whales import DockerClient
 
@@ -203,9 +204,25 @@ async def service_off(service: ServicesDB):
     info: ServiceInfo = service.info
     match info["activate"]:
         case "none":
-            client = DockerClient(compose_files=[info["activate_info"]["docker_compose"]["filepath"]])
-            client.compose.down()
+            pass
         case "docker":
             client = docker.from_env()
             name = service.service_name + "_container"
-            client.containers.get(name).stop()
+            try:
+                client.containers.get(name).stop()
+            except NotFound:
+                raise HTTPException(status_code=400, detail="服務未啟動")
+
+
+async def service_remove(service: ServicesDB):
+    info: ServiceInfo = service.info
+    match info["activate"]:
+        case "none":
+            pass
+        case "docker":
+            client = docker.from_env()
+            name = service.service_name + "_container"
+            try:
+                client.containers.get(name).remove()
+            except NotFound:
+                raise HTTPException(status_code=400, detail="服務未啟動")
