@@ -55,7 +55,7 @@
                     >
                         <div v-if="editingName === name" class="overflow-hidden border-t border-slate-100 bg-slate-50/50">
                             <div class="px-6 py-5">
-                                <EditComponent :name="name" @close="editingName = null" />
+                                <EditComponent :name="name" v-model="service_table[name] as ServiceInfo" @close="editingName = null" />
                             </div>
                         </div>
                     </transition>
@@ -74,7 +74,7 @@ import axios from "axios";
 import {show_modal} from "@/utils/modal.ts";
 import {useAuthStore} from "@/stores/auth.ts";
 import {useRouter} from "vue-router";
-import type {AService} from "@/utils/types.ts";
+import type {AService, ServiceInfo} from "@/utils/types.ts";
 import EditComponent from "@/components/EditComponent.vue";
 
 const names = ref<string[]>([]);
@@ -82,6 +82,7 @@ const auth = useAuthStore();
 const router = useRouter();
 
 const services = ref<AService[]>([]);
+const service_table = ref<Record<string, ServiceInfo>>({});
 
 // 關鍵狀態：記錄目前哪一個項目正在被編輯 (null 表示沒有項目在編輯)
 const editingName = ref<string | null>(null)
@@ -97,6 +98,25 @@ const toggleEdit = (name: string) => {
     }
 }
 
+function fix_info(obj: ServiceInfo){
+    if(!obj.activate_info.docker){
+        obj.activate_info.docker = {
+            "image": "Ubuntu"
+        }
+    }
+    if(!obj.present_info.http){
+        obj.present_info.http = {
+            "hostname":"host.docker.internal",
+            "port": 8080
+        }
+    }
+    if (!obj.activate_info.docker_compose){
+        obj.activate_info.docker_compose = {
+            "filepath": "docker-compose.yml"
+        }
+    }
+}
+
 async function loadData() {
     await auth.load();
     if (auth.role == "unauthorized"){
@@ -106,10 +126,14 @@ async function loadData() {
     const res = await axios.get("/api/services");
     services.value = res.data.services;
     const out = [];
+    const table: Record<string, ServiceInfo> = {};
     for (let service of services.value) {
         out.push(service.service_name);
+        fix_info(service.info);
+        table[service.service_name] = service.info;
     }
     names.value = out;
+    service_table.value = table
 }
 
 onMounted(async () => {

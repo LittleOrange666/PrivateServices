@@ -1,5 +1,6 @@
 import os
 import shutil
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends, HTTPException, Response
@@ -146,7 +147,7 @@ async def update_service(user_in: ServicePut, current_user: UserInfo = Depends(c
     flag_modified(service, "info")
     db.commit()
     await update_nginx_conf()
-    restart_nginx()
+    threading.Timer(10, restart_nginx).start()  # 等nginx配置文件寫入完成再重啟
     return Message(message="更新成功")
 
 @app.post("/api/services/on")

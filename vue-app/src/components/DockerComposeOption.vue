@@ -1,7 +1,3 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
     <div class="flex flex-col space-y-4">
         <div class="flex items-center justify-between">
@@ -13,3 +9,10 @@
 <style scoped>
 
 </style>
+
+<script setup lang="ts">
+
+
+
+</script>
+
