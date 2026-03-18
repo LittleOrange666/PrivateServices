@@ -8,10 +8,9 @@ from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
-from starlette.responses import JSONResponse
 
 from modules.auth import verify_password, create_access_token, get_password_hash, check_login, \
-    check_admin, UserInfo
+    check_admin, UserInfo, ACCESS_TOKEN_EXPIRE_MINUTES
 from modules.data import get_db, UserDB, Base, engine, SessionLocal, ServicesDB
 from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf, restart_nginx, service_on, \
     service_off
@@ -64,7 +63,7 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
         key="access_token",
         value=f"Bearer {access_token}",
         httponly=True,
-        max_age=3600,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES*60,
         samesite="lax",
         secure=False
     )

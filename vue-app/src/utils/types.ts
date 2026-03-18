@@ -1,61 +1,89 @@
-// -------------------------------------------------------------------
-// Core DockerRunArgs structure (mirrors the TypedDict you posted)
-// -------------------------------------------------------------------
-export type DeviceRequest = {
-    driver: string;
-    count: number;
-    capabilities: string[];
-};
+export interface DeviceRequest{
+    driver: string
+    count: number
+    capabilities: string[][]
+}
 
-export type VolumeConfig = {
-    bind: string;                // host path
-    mode: 'rw' | 'ro';
-};
+export type VolumeMode = "rw" | "ro";
 
-export type RestartPolicy = {
-    Name: 'no' | 'on-failure' | 'always' | 'unless-stopped';
-    MaximumRetryCount?: number; // only used when Name === 'on-failure'
-};
+export interface VolumeConfig{
+    bind: string
+    mode: VolumeMode
+}
 
-export type Ulimit = {
-    name: string;
-    soft: number;
-    hard: number;
-};
+export type RestartPolicyType = "no" | "on-failure" | 'unless-stopped' | "always";
 
-export type LogConfig = {
-    type: 'json-file' | 'syslog' | string;
-    config?: Record<string, string>;
-};
+export interface RestartPolicy{
+    name: RestartPolicyType
+    MaximumRetryCount?: number
+}
 
-export type DockerRunArgs = {
-    // ------------
-    // DO NOT EDIT THESE (but they are still displayed for completeness)
-    // ------------
-    image: string;                 // user must fill it
-    command: string | string[];    // user must fill it
-    name: string;                  // auto‑generated; user must fill it
-    detach: boolean;               // auto‑generated; fixed to true
-    remove: boolean;               // auto‑generated; user can toggle
+export interface Ulimit{
+    name: string
+    soft: number
+    hard: number
+}
 
-    // ------------ CORE SETTINGS ------------
-    volumes: Record<string, VolumeConfig>; // hostPath => { bind, mode }
-    environment: Record<string, string> | string[]; // key/value or simple array
-    ports: Record<string, number | [number, number] | (number | string)[]>; // host:container
-    network: string;
-    runtime: string;
-    device_requests: DeviceRequest[];
-    restart_policy: RestartPolicy;
-    mem_limit: string | number;
-    nano_cpus: number;
-    ulimits: Ulimit[];
-    log_config: LogConfig;
-    user: string | number;
-    privileged: boolean;
-    working_dir: string;
+export interface LogConfig{
+    type: string
+    config: any
+}
 
-    // ------------ HIDDEN FROM USER (but still in type) ------------
-    // These are *not* editable in our UI – they are filled automatically.
-    // They are kept for TypeScript completeness.
-    // (you can ignore them)
-};
+export interface DockerInfo{
+    image: string
+    command?: string | string[]
+    remove?: boolean
+    restart?: RestartPolicy
+    volumes?: VolumeConfig[]
+
+    environment?: string[] | Record<string, string>
+    ports?: Record<string, number | string[]>
+    network?: string
+    runtime?: string
+    deviceRequests?: DeviceRequest[]
+
+    restart_policy?: RestartPolicy,
+    mem_limit?: number | string
+    nano_cpus?: number
+    ulimits?: Ulimit[]
+    log_config?: LogConfig
+
+    user?: string | number
+    privileged?: boolean
+    working_dir?: string
+}
+
+export interface DockerComposeInfo{
+    filepath: string
+}
+
+export interface ActivateInfo{
+    docker?: DockerInfo
+    docker_compose?: DockerComposeInfo
+}
+
+export interface HttpInfo{
+    hostname: string
+    port: number
+}
+
+export interface PresentInfo{
+    http?: HttpInfo
+}
+
+export type ActivateType = "none" | "docker" | "docker-compose"
+
+export type PresentType = "none" | "http"
+
+export interface ServiceInfo{
+    activate: ActivateType
+    present: PresentType
+    activate_info: ActivateInfo
+    present_info: PresentInfo
+}
+
+export interface AService{
+    service_name: string
+    host: string
+    info: ServiceInfo
+}

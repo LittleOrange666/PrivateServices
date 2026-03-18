@@ -1,34 +1,64 @@
 <template>
     <div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-2xl mx-auto"><h1
-            class="text-3xl font-extrabold text-slate-900 mb-8 text-center tracking-tight">
+        <div class="max-w-xl mx-auto"> <h1 class="text-xl font-extrabold text-slate-900 mb-8 text-center tracking-tight">
             首頁
         </h1>
 
             <div class="space-y-4">
                 <div v-for="name in names" :key="name"
-                     class="flex items-center justify-between px-6 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all">
+                     class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden transition-all duration-300"
+                     :class="{'ring-2 ring-indigo-100 shadow-lg': editingName === name}">
 
-          <span class="text-slate-700 font-semibold text-lg">
-            {{ name }}
-          </span>
+                    <div class="flex items-center justify-between px-6 py-4">
 
-                    <div class="flex items-center gap-2">
-                        <a :href="`/${name}/`"
-                           class="px-4 py-2 bg-indigo-50 text-indigo-700 text-sm font-bold rounded-xl hover:bg-indigo-600 hover:text-white transition-colors duration-200">
-                            前往
-                        </a>
+                        <div class="flex items-center gap-3">
+              <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+                            <span class="text-slate-700 font-semibold text-lg font-mono">
+                {{ name }}
+              </span>
+                        </div>
 
-                        <button @click="handleStart(name)"
-                                class="px-4 py-2 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-xl hover:bg-emerald-600 hover:text-white transition-colors duration-200">
-                            啟動
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <a :href="`/${name}/`"
+                               class="px-3 py-1.5 bg-indigo-50 text-indigo-700 text-sm font-bold rounded-lg hover:bg-indigo-100 transition-colors">
+                                前往
+                            </a>
 
-                        <button @click="handleStop(name)"
-                                class="px-4 py-2 bg-rose-50 text-rose-700 text-sm font-bold rounded-xl hover:bg-rose-600 hover:text-white transition-colors duration-200">
-                            停止
-                        </button>
+                            <button @click="toggleEdit(name)" v-if="auth.role=='admin'"
+                                    class="px-3 py-1.5 text-sm font-bold rounded-lg transition-colors flex items-center gap-1"
+                                    :class="editingName === name ? 'bg-slate-200 text-slate-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                                {{ editingName === name ? '取消' : '編輯' }}
+                            </button>
+
+                            <button @click="handleStart(name)"
+                                    class="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-lg hover:bg-emerald-100 transition-colors">
+                                啟動
+                            </button>
+
+                            <button @click="handleStop(name)"
+                                    class="px-3 py-1.5 bg-rose-50 text-rose-700 text-sm font-bold rounded-lg hover:bg-rose-100 transition-colors">
+                                停止
+                            </button>
+                        </div>
                     </div>
+
+                    <transition
+                        enter-active-class="transition-[max-height] duration-300 ease-out"
+                        enter-from-class="max-height-0"
+                        enter-to-class="max-height-96"
+                        leave-active-class="transition-[max-height] duration-200 ease-in"
+                        leave-from-class="max-height-96"
+                        leave-to-class="max-height-0"
+                    >
+                        <div v-if="editingName === name" class="overflow-hidden border-t border-slate-100 bg-slate-50/50">
+                            <div class="px-6 py-5">
+                                <EditComponent :name="name" @close="editingName = null" />
+                            </div>
+                        </div>
+                    </transition>
 
                 </div>
             </div>
@@ -44,10 +74,28 @@ import axios from "axios";
 import {show_modal} from "@/utils/modal.ts";
 import {useAuthStore} from "@/stores/auth.ts";
 import {useRouter} from "vue-router";
+import type {AService} from "@/utils/types.ts";
+import EditComponent from "@/components/EditComponent.vue";
 
 const names = ref<string[]>([]);
 const auth = useAuthStore();
 const router = useRouter();
+
+const services = ref<AService[]>([]);
+
+// 關鍵狀態：記錄目前哪一個項目正在被編輯 (null 表示沒有項目在編輯)
+const editingName = ref<string | null>(null)
+
+// 切換編輯狀態的函數
+const toggleEdit = (name: string) => {
+    if (editingName.value === name) {
+        // 如果點擊的是同一個，則關閉
+        editingName.value = null
+    } else {
+        // 否則，打開點擊的這一個 (這也會自動關閉原本打開的另一個)
+        editingName.value = name
+    }
+}
 
 async function loadData() {
     await auth.load();
@@ -56,8 +104,9 @@ async function loadData() {
         return;
     }
     const res = await axios.get("/api/services");
+    services.value = res.data.services;
     const out = [];
-    for (let service of res.data.services) {
+    for (let service of services.value) {
         out.push(service.service_name);
     }
     names.value = out;
