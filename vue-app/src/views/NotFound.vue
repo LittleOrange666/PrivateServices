@@ -10,7 +10,7 @@
             <p class="mt-6 text-base leading-7 text-slate-600">
                 很抱歉，我們找不到您要求的頁面：
                 <code
-                    class="mx-1 rounded bg-slate-100 px-2 py-1 font-mono text-sm font-medium text-indigo-700 border border-slate-200">
+                        class="mx-1 rounded bg-slate-100 px-2 py-1 font-mono text-sm font-medium text-indigo-700 border border-slate-200">
                     {{ $route.path }}
                 </code>
             </p>
@@ -21,8 +21,8 @@
 
             <div class="mt-10 flex items-center justify-center gap-x-6">
                 <router-link
-                    to="/"
-                    class="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-black shadow-lg hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200 active:scale-95"
+                        to="/"
+                        class="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-black shadow-lg hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200 active:scale-95"
                 >
                     返回首頁
                 </router-link>

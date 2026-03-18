@@ -5,76 +5,76 @@
             <p class="text-sm text-slate-500 mt-1">設定映像檔執行參數與系統資源限制</p>
         </div>
 
-            <div class="space-y-4 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="font-semibold text-slate-700 flex items-center gap-2">
-                    <span class="w-2 h-5 bg-blue-500 rounded-full"></span> 基礎資訊
-                </h3>
+        <div class="space-y-4 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+            <h3 class="font-semibold text-slate-700 flex items-center gap-2">
+                <span class="w-2 h-5 bg-blue-500 rounded-full"></span> 基礎資訊
+            </h3>
 
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Image 映像檔</label>
-                        <input v-model="model.image" type="text" placeholder="e.g. nginx:latest"
-                               class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"/>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Image 映像檔</label>
+                    <input v-model="model.image" type="text" placeholder="e.g. nginx:latest"
+                           class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"/>
+                </div>
+
+                <div>
+                    <EditableList title="命令參數 (Args)" v-model="model.command as string[]"/>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">工作目錄</label>
+                        <input v-model="model.working_dir" type="text" placeholder="/app"
+                               class="form-input-custom"/>
                     </div>
-
-                    <div>
-                        <EditableList title="命令參數 (Args)" v-model="model.command as string[]"/>
-                   </div>
-
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">工作目錄</label>
-                            <input v-model="model.working_dir" type="text" placeholder="/app"
-                                   class="form-input-custom"/>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">使用者</label>
-                            <input v-model="model.user" type="text" placeholder="root" class="form-input-custom"/>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-6 pt-2">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input v-model="model.privileged" type="checkbox" class="w-4 h-4 text-blue-600 rounded"/>
-                            <span class="text-sm text-slate-600">特權模式</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input v-model="model.remove" type="checkbox" class="w-4 h-4 text-blue-600 rounded"/>
-                            <span class="text-sm text-slate-600">自動刪除 (--rm)</span>
-                        </label>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">使用者</label>
+                        <input v-model="model.user" type="text" placeholder="root" class="form-input-custom"/>
                     </div>
                 </div>
-            </div>
 
-            <div class="space-y-4 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="font-semibold text-slate-700 flex items-center gap-2">
-                    <span class="w-2 h-5 bg-emerald-500 rounded-full"></span> 資源限制
-                </h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">記憶體限制
-                            (mem_limit)</label>
-                        <input v-model="model.mem_limit" type="text" placeholder="512m / 2g" class="form-input-custom"/>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">CPU 核心 (Nano
-                            CPUs)</label>
-                        <input v-model.number="model.nano_cpus" type="number" step="0.1" class="form-input-custom"/>
-                    </div>
-                    <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">重啟策略</label>
-                        <select
+                <div class="flex items-center gap-6 pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input v-model="model.privileged" type="checkbox" class="w-4 h-4 text-blue-600 rounded"/>
+                        <span class="text-sm text-slate-600">特權模式</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input v-model="model.remove" type="checkbox" class="w-4 h-4 text-blue-600 rounded"/>
+                        <span class="text-sm text-slate-600">自動刪除 (--rm)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+            <h3 class="font-semibold text-slate-700 flex items-center gap-2">
+                <span class="w-2 h-5 bg-emerald-500 rounded-full"></span> 資源限制
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">記憶體限制
+                        (mem_limit)</label>
+                    <input v-model="model.mem_limit" type="text" placeholder="512m / 2g" class="form-input-custom"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">CPU 核心 (Nano
+                        CPUs)</label>
+                    <input v-model.number="model.nano_cpus" type="number" step="0.1" class="form-input-custom"/>
+                </div>
+                <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">重啟策略</label>
+                    <select
                             :value="model.restart_policy?.name || 'no'"
                             @change="(e) => {
                               const val = (e.target as HTMLSelectElement).value as RestartPolicyType;
                               model.restart_policy = { ...model.restart_policy, name: val };
                             }"
                             class="form-input-custom"
-                        >
-                            <option v-for="opt in restartOptions" :key="opt" :value="opt">{{ opt }}</option>
-                        </select>
-                    </div>
+                    >
+                        <option v-for="opt in restartOptions" :key="opt" :value="opt">{{ opt }}</option>
+                    </select>
                 </div>
             </div>
+        </div>
 
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <div class="flex justify-between items-center mb-4">
@@ -101,13 +101,13 @@
                     <button @click="removeVolume(idx)" class="p-2 text-red-400 hover:text-red-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </button>
                 </div>
             </div>
         </div>
-        <RecordEditor title="環境變數" v-model="model.environment as Record<string,string>" />
+        <RecordEditor title="環境變數" v-model="model.environment as Record<string,string>"/>
     </div>
 </template>
 

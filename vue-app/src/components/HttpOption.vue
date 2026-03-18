@@ -4,21 +4,21 @@
             <div class="col-span-2">
                 <label class="block text-sm font-medium text-slate-600 mb-1">主機名稱 (Hostname)</label>
                 <input
-                    v-model="model.hostname"
-                    type="text"
-                    placeholder="localhost"
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                        v-model="model.hostname"
+                        type="text"
+                        placeholder="localhost"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                 />
             </div>
 
             <div class="col-span-1">
                 <label class="block text-sm font-medium text-slate-600 mb-1">連接埠</label>
                 <input
-                    :value="model.port"
-                    @input="updatePort"
-                    type="number"
-                    placeholder="8080"
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                        :value="model.port"
+                        @input="updatePort"
+                        type="number"
+                        placeholder="8080"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                 />
             </div>
         </div>

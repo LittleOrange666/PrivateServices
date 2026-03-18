@@ -10,22 +10,22 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700">帳號</label>
                     <input
-                        v-model="username"
-                        type="text"
-                        required
-                        class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                        placeholder="請輸入帳號"
+                            v-model="username"
+                            type="text"
+                            required
+                            class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            placeholder="請輸入帳號"
                     />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">密碼</label>
                     <input
-                        v-model="password"
-                        type="password"
-                        required
-                        class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                        placeholder="請輸入密碼"
+                            v-model="password"
+                            type="password"
+                            required
+                            class="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                            placeholder="請輸入密碼"
                     />
                 </div>
 
@@ -34,9 +34,9 @@
                 </div>
 
                 <button
-                    type="submit"
-                    :disabled="loading"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 flex justify-center items-center"
+                        type="submit"
+                        :disabled="loading"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 flex justify-center items-center"
                 >
                     <span v-if="loading" class="animate-spin mr-2">🌀</span>
                     {{ loading ? '登入中...' : '立即登入' }}

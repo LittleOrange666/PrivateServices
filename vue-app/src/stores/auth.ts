@@ -8,16 +8,17 @@ export const useAuthStore = defineStore('auth', () => {
     const name = ref<string>("");
     const role = ref<Role>("unauthorized");
     const loaded = ref<boolean>(false);
-    async function load(){
+
+    async function load() {
         if (loaded.value) return;
         loaded.value = true;
-        try{
+        try {
             const res = await axios.get("/api/verify");
             if (res.status === 200) {
                 name.value = res.data.user;
                 role.value = res.data.role;
             }
-        }catch(e){
+        } catch (e) {
             console.error(e);
         }
     }

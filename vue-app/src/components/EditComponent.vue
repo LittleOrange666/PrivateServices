@@ -6,10 +6,10 @@
     </div>
     <div class="w-full max-w-2xl space-y-4">
         <div
-            v-for="opt in options"
-            :key="opt.id"
-            @click="info.activate = opt.id as ActivateType"
-            :class="[
+                v-for="opt in options"
+                :key="opt.id"
+                @click="info.activate = opt.id as ActivateType"
+                :class="[
         'relative flex flex-col p-4 cursor-pointer rounded-xl border-2 transition-all duration-200 ease-in-out',
         info.activate === opt.id
           ? 'border-indigo-600 bg-indigo-50/30 ring-1 ring-indigo-600'
@@ -19,7 +19,7 @@
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
                     <div
-                        :class="[
+                            :class="[
               'w-5 h-5 rounded-full border flex items-center justify-center transition-colors',
               info.activate === opt.id ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300 bg-white'
             ]"
@@ -38,9 +38,9 @@
             </p>
 
             <div
-                v-if="opt.id !== 'none'"
-                class="ml-8 mt-2 overflow-hidden transition-all"
-                :class="[info.activate === opt.id ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none']"
+                    v-if="opt.id !== 'none'"
+                    class="ml-8 mt-2 overflow-hidden transition-all"
+                    :class="[info.activate === opt.id ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none']"
             >
                 <DockerComposeOption v-if="opt.id === 'docker-compose'"/>
                 <DockerOption v-if="opt.id === 'docker'" v-model="info.activate_info.docker as DockerInfo"/>
@@ -54,10 +54,10 @@
     </div>
     <div class="w-full max-w-2xl space-y-4">
         <div
-            v-for="opt in options2"
-            :key="opt.id"
-            @click="info.present = opt.id as PresentType"
-            :class="[
+                v-for="opt in options2"
+                :key="opt.id"
+                @click="info.present = opt.id as PresentType"
+                :class="[
         'relative flex flex-col p-4 cursor-pointer rounded-xl border-2 transition-all duration-200 ease-in-out',
         info.present === opt.id
           ? 'border-indigo-600 bg-indigo-50/30 ring-1 ring-indigo-600'
@@ -67,7 +67,7 @@
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
                     <div
-                        :class="[
+                            :class="[
               'w-5 h-5 rounded-full border flex items-center justify-center transition-colors',
               info.present === opt.id ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300 bg-white'
             ]"
@@ -86,9 +86,9 @@
             </p>
 
             <div
-                v-if="opt.id !== 'none'"
-                class="ml-8 mt-2 overflow-hidden transition-all"
-                :class="[info.present === opt.id ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none']"
+                    v-if="opt.id !== 'none'"
+                    class="ml-8 mt-2 overflow-hidden transition-all"
+                    :class="[info.present === opt.id ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none']"
             >
                 <HttpOption v-if="opt.id === 'http'" v-model="info.present_info.http as HttpInfo"/>
             </div>
