@@ -22,7 +22,7 @@
                     class="flex gap-2 items-start animate-in fade-in duration-200"
             >
                 <div class="flex-1">
-                    <label class="block text-xs text-gray-500 mb-1">Key</label>
+                    <label class="block text-xs text-gray-500 mb-1">{{ key_name || 'Key' }}</label>
                     <input
                             type="text"
                             :value="key"
@@ -33,10 +33,10 @@
                 </div>
 
                 <div class="flex-[1.5]">
-                    <label class="block text-xs text-gray-500 mb-1">Value</label>
+                    <label class="block text-xs text-gray-500 mb-1">{{ value_name || 'Value' }}</label>
                     <input
-                            type="text"
-                            v-model="model[key]"
+                            type="number" step="1" min="0" max="65535"
+                            v-model.number="model[key]"
                             placeholder="數值"
                             class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
                     />
@@ -64,12 +64,14 @@
 import {computed} from 'vue';
 
 // 定義 Model，類型為 Record<string, string>
-const model = defineModel<Record<string, string>>({
+const model = defineModel<Record<string, number>>({
     default: () => ({})
 });
 
 interface Props {
     title: string;
+    key_name?: string;
+    value_name?: string;
 }
 
 defineProps<Props>();
@@ -82,7 +84,7 @@ const addItem = () => {
     while (newKey in model.value) {
         newKey = `new_key_${counter++}`;
     }
-    model.value[newKey] = '';
+    model.value[newKey] = 0;
 };
 
 // 刪除項目
@@ -101,7 +103,7 @@ const updateKey = (oldKey: string, newKey: string) => {
         return;
     }
 
-    const value = model.value[oldKey] as string;
+    const value = model.value[oldKey] as number;
     const {[oldKey]: _, ...rest} = model.value;
 
     // 重新建立物件以觸發反應性並維持順序（非必要，但對 UX 較好）

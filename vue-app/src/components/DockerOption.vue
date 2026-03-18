@@ -21,16 +21,22 @@
                     <EditableList title="命令參數 (Args)" v-model="model.command as string[]"/>
                 </div>
 
-                <div class="flex gap-4">
-                    <div class="flex-1">
+                    <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">工作目錄</label>
                         <input v-model="model.working_dir" type="text" placeholder="/app"
                                class="form-input-custom"/>
                     </div>
-                    <div class="flex-1">
+                    <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">使用者</label>
                         <input v-model="model.user" type="text" placeholder="root" class="form-input-custom"/>
                     </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">運行環境</label>
+                    <input v-model="model.runtime" type="text" placeholder="nvidia" class="form-input-custom"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">網路</label>
+                    <input v-model="model.network" type="text" placeholder="default" class="form-input-custom"/>
                 </div>
 
                 <div class="flex items-center gap-6 pt-2">
@@ -108,6 +114,12 @@
             </div>
         </div>
         <RecordEditor title="環境變數" v-model="model.environment as Record<string,string>"/>
+        <RecordEditor2 title="通訊埠" key_name="Inner port" value_name="Host port" v-model="model.ports as Record<string,number>"/>
+
+        <div class="mt-6 pt-4 border-t">
+            <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Data Preview:</p>
+            <pre class="bg-gray-800 text-green-400 p-3 rounded text-xs overflow-auto">{{ model }}</pre>
+        </div>
     </div>
 </template>
 
@@ -118,6 +130,7 @@
 import type {DockerInfo, RestartPolicyType} from '@/utils/types';
 import RecordEditor from "@/components/RecordEditor.vue";
 import EditableList from "@/components/EditableList.vue";
+import RecordEditor2 from "@/components/RecordEditor2.vue";
 
 // 定義 Model
 const model = defineModel<DockerInfo>({required: true});
