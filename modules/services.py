@@ -1,4 +1,4 @@
-from typing import TypedDict, Literal, NotRequired, Union
+from typing import TypedDict, Literal, NotRequired, Union, Required
 
 import docker
 from docker.errors import NotFound
@@ -42,10 +42,10 @@ class LogConfig(TypedDict):
     config: NotRequired[dict[str, str]]
 
 
-class DockerRunArgs(TypedDict, total=False):
+class DockerInfo(TypedDict, total=False):
     # 基礎設定
-    # image: str (user should not modify this)
-    command: Union[str, list[str]]
+    image: Required[str]
+    command: str | list[str]
     # name: str (user should not modify this)
     # detach: bool (user should not modify this)
     remove: bool  # 對應 SDK 的 auto_remove
@@ -55,32 +55,27 @@ class DockerRunArgs(TypedDict, total=False):
     volumes: dict[str, VolumeConfig]
 
     # 網路與環境
-    environment: Union[dict[str, str], list[str]]
-    ports: dict[str, Union[int, tuple, list]]
+    environment: dict[str, str] | list[str]
+    ports: dict[str, int | tuple | list]
     network: str
     runtime: str
     device_requests: list[DeviceRequest]
 
     # 策略與限制
     restart_policy: RestartPolicy
-    mem_limit: Union[int, str]
+    mem_limit: int | str
     nano_cpus: int
     ulimits: list[Ulimit]
     log_config: LogConfig
 
     # 權限
-    user: Union[str, int]
+    user: str | int
     privileged: bool
     working_dir: str
 
 
 class DockerComposeInfo(TypedDict):
     filepath: str
-
-
-class DockerInfo(TypedDict):
-    image_name: str
-    config: DockerRunArgs
 
 
 class ActivateInfo(TypedDict):
@@ -184,8 +179,7 @@ async def service_on(service: ServicesDB):
         case "docker":
             client = docker.from_env()
             name = service.service_name + "_container"
-            image_name = info["activate_info"]["docker"]["image_name"]
-            config = info["activate_info"]["docker"]["config"]
+            config = info["activate_info"]["docker"]
 
             try:
                 container = client.containers.get(name)
@@ -199,7 +193,6 @@ async def service_on(service: ServicesDB):
             except NotFound:
                 print(f"容器 {name} 不存在，正在建立並執行...")
                 client.containers.run(
-                    image_name,
                     detach=True,
                     name=name,
                     **config

@@ -27,14 +27,12 @@ docker compose up -d
     "present": "http",
     "activate_info": {
       "docker": {
-        "image_name": "awwaawwa/pdfmathtranslate-next",
-        "config": {
-          "ports": {
-            "7860": 7860
-          },
-          "environment": {
-            "GRADIO_ROOT_PATH": "/pdf"
-          }
+        "image": "awwaawwa/pdfmathtranslate-next",
+        "ports": {
+          "7860": 7860
+        },
+        "environment": {
+          "GRADIO_ROOT_PATH": "/pdf"
         }
       }
     },
@@ -55,8 +53,7 @@ docker compose up -d
     "present": "http",
     "activate_info": {
       "docker": {
-        "image_name": "docker-stable-diffusion-webui-save7",
-        "config": {
+        "image": "docker-stable-diffusion-webui-save7",
           "ports": {
             "8080": 7861
           },
@@ -103,7 +100,6 @@ docker compose up -d
           },
           "command": ["--update-check", "--listen", "--port", "8080", "--skip-torch-cuda-test", "--disable-nan-check", "--disable-safe-unpickle", "--no-half", "--no-half-vae", "--precision", "full", "--subpath", "/sd"],
           "runtime": "nvidia"
-        }
       }
     },
     "present_info": {
@@ -123,8 +119,7 @@ docker compose up -d
     "present": "http",
     "activate_info": {
       "docker": {
-        "image_name": "littleorange666/vision_translate:1.0.0",
-        "config": {
+        "image": "littleorange666/vision_translate:1.0.0",
           "ports": {
             "7862": 7862
           },
@@ -134,45 +129,12 @@ docker compose up -d
             "MODEL_NAME": "translategemma:12b",
             "SERVER_PORT": "7862"
           }
-        }
       }
     },
     "present_info": {
       "http": {
         "hostname": "host.docker.internal",
         "port": 7862
-      }
-    }
-  }
-}
-```
-```json
-{
-  "name": "ai",
-  "info": {
-    "activate": "docker",
-    "present": "http",
-    "activate_info": {
-      "docker": {
-        "image_name": "ghcr.io/open-webui/open-webui:main",
-        "config": {
-          "ports": {
-            "8080": 7960
-          },
-          "volumes": {
-            "open-webui": {
-              "bind": "/app/backend/data",
-              "mode": "rw"
-            }
-          }
-        }
-      }
-    },
-    "present_info": {
-      "http": {
-        "hostname": "host.docker.internal",
-        "port": 7960,
-        "use_root": true
       }
     }
   }

@@ -71,9 +71,9 @@ async function handleLogin() {
     if (res.status === 200) {
         // 登入成功，導向首頁
         //await show_modal("成功", "登入成功");
-        await router.push("/");
         auth.loaded = false;
         await auth.load();
+        await router.push("/");
     } else {
         errorMessage.value = res.data.detail;
         //await show_modal("失敗", res.data.detail);

@@ -43,12 +43,18 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+class HealthCheck(BaseModel):
+    status: str = "ok"
+
 @app.get("/health_check")
-async def health_check():
-    return {"status": "ok"}
+async def health_check() -> HealthCheck:
+    return HealthCheck()
+
+class Message(BaseModel):
+    message: str
 
 @app.post("/api/login")
-async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Message:
     user = db.query(UserDB).filter(UserDB.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="帳號或密碼錯誤")
@@ -62,24 +68,25 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
         samesite="lax",
         secure=False
     )
-    return {"message": "登入成功"}
+    return Message(message="登入成功")
 
 @app.post("/api/logout")
-async def logout(response: Response):
+async def logout(response: Response) -> Message:
     response.delete_cookie("access_token")
-    return {"message": "已登出"}
+    return Message(message="登出成功")
+
+class LoginInfo(BaseModel):
+    user: str
+    role: str
+    status: str = "ok"
 
 @app.get("/api/verify-admin")
-async def verify_admin(current_user: UserInfo = Depends(check_admin)):
-    response = JSONResponse(content={"status": "ok", "user": current_user["sub"]})
-    response.headers["X-User-ID"] = current_user["sub"]
-    response.headers["X-User-Role"] = current_user["role"]
-    return response
+async def verify_admin(current_user: UserInfo = Depends(check_admin)) -> LoginInfo:
+    return LoginInfo(user=current_user["sub"], role=current_user["role"])
 
 @app.get("/api/verify")
-async def verify_user(current_user: UserInfo = Depends(check_login)):
-    response = JSONResponse(content={"status": "ok", "user": current_user["sub"], "role": current_user["role"]})
-    return response
+async def verify_user(current_user: UserInfo = Depends(check_login)) -> LoginInfo:
+    return LoginInfo(user=current_user["sub"], role=current_user["role"])
 
 class AService(BaseModel):
     service_name: str
@@ -89,25 +96,19 @@ class AService(BaseModel):
 class ServiceList(BaseModel):
     services: list[AService]
 
-@app.get("/api/services", response_model=ServiceList)
-async def get_services(current_user: UserInfo = Depends(check_login), db: Session = Depends(get_db)):
+@app.get("/api/services")
+async def get_services(current_user: UserInfo = Depends(check_login), db: Session = Depends(get_db)) -> ServiceList:
     services = db.query(ServicesDB).all()
-    ret = []
+    ret: list[AService] = []
     for service in services:
-        ret.append({
-            "service_name": service.service_name,
-            "host": service.host,
-            "info": service.info,
-                   })
-    return {
-        "services": ret
-    }
+        ret.append(AService(service_name=service.service_name, host=service.host, info=service.info))
+    return ServiceList(services=ret)
 
 class ServiceCreate(BaseModel):
     name: str
 
 @app.post("/api/services")
-async def create_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
+async def create_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)) -> Message:
     name = user_in.name
     service = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service:
@@ -116,10 +117,10 @@ async def create_service(user_in: ServiceCreate, current_user: UserInfo = Depend
     service = ServicesDB(service_name=name, host="", info=get_default_service_info())
     db.add(service)
     db.commit()
-    return {"message": "服務創建成功"}
+    return Message(message="服務創建成功")
 
 @app.delete("/api/services")
-async def delete_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
+async def delete_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)) -> Message:
     name = user_in.name
     service = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service is None:
@@ -127,14 +128,14 @@ async def delete_service(user_in: ServiceCreate, current_user: UserInfo = Depend
     db.delete(service)
     db.commit()
     await update_nginx_conf()
-    return {"message": "服務刪除成功"}
+    return Message(message="服務刪除成功")
 
 class ServicePut(BaseModel):
     name: str
     info: ServiceInfo
 
 @app.put("/api/services")
-async def update_service(user_in: ServicePut, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
+async def update_service(user_in: ServicePut, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)) -> Message:
     name = user_in.name
     service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service is None:
@@ -147,16 +148,16 @@ async def update_service(user_in: ServicePut, current_user: UserInfo = Depends(c
     db.commit()
     await update_nginx_conf()
     restart_nginx()
-    return {"message": "更新成功"}
+    return Message(message="更新成功")
 
 @app.post("/api/services/on")
-async def start_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
+async def start_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)) -> Message:
     name = user_in.name
     service: ServicesDB | None = db.query(ServicesDB).filter(ServicesDB.service_name == name).first()
     if service is None:
         raise HTTPException(status_code=400, detail="服務不存在")
     await service_on(service)
-    return {"message": "啟動成功"}
+    return Message(message="啟動成功")
 
 @app.post("/api/services/off")
 async def stop_service(user_in: ServiceCreate, current_user: UserInfo = Depends(check_admin), db: Session = Depends(get_db)):
@@ -165,4 +166,4 @@ async def stop_service(user_in: ServiceCreate, current_user: UserInfo = Depends(
     if service is None:
         raise HTTPException(status_code=400, detail="服務不存在")
     await service_off(service)
-    return {"message": "停止成功"}
+    return Message(message="停止成功")
