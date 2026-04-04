@@ -10,7 +10,7 @@ from .data import SessionLocal, ServicesDB
 
 ActivateType = Literal["none", "docker-compose", "docker"]
 
-PresentType = Literal["none", "http"]
+PresentType = Literal["none", "http", "url"]
 
 
 class DeviceRequest(TypedDict):
@@ -89,9 +89,13 @@ class HttpInfo(TypedDict):
     port: int
     use_root: NotRequired[bool]
 
+class UrlInfo(TypedDict):
+    url: str
+
 
 class PresentInfo(TypedDict):
     http: NotRequired[HttpInfo]
+    url: NotRequired[UrlInfo]
 
 
 class ServiceInfo(TypedDict):
@@ -226,3 +230,18 @@ async def service_remove(service: ServicesDB):
                 client.containers.get(name).remove()
             except NotFound:
                 raise HTTPException(status_code=400, detail="服務未啟動")
+
+def is_on(service: ServicesDB):
+    info: ServiceInfo = service.info
+    match info["activate"]:
+        case "none":
+            return "none"
+        case "docker":
+            client = docker.from_env()
+            name = service.service_name + "_container"
+            try:
+                container = client.containers.get(name)
+                return container.status
+            except NotFound:
+                return "none"
+    return "none"

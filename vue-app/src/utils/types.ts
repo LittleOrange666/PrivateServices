@@ -61,6 +61,10 @@ export interface ActivateInfo {
     docker_compose?: DockerComposeInfo
 }
 
+export interface UrlInfo{
+    url: string
+}
+
 export interface HttpInfo {
     hostname: string
     port: number
@@ -68,11 +72,12 @@ export interface HttpInfo {
 
 export interface PresentInfo {
     http?: HttpInfo
+    url?: UrlInfo
 }
 
 export type ActivateType = "none" | "docker" | "docker-compose"
 
-export type PresentType = "none" | "http"
+export type PresentType = "none" | "http" | "url"
 
 export interface ServiceInfo {
     activate: ActivateType

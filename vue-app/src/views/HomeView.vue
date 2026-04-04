@@ -9,11 +9,7 @@
                      :class="{'ring-2 ring-indigo-100 shadow-lg': editingName === name}">
                     <div class="flex items-center justify-between px-6 py-4">
                         <div class="flex items-center gap-3">
-              <span class="relative flex h-3 w-3">
-                <span
-                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-              </span>
+                            <Status :status="service_status[name]==='running'? 'running' : 'stopped'" />
                             <span class="text-slate-700 font-semibold text-lg font-mono">
                 {{ name }}
               </span>
@@ -81,6 +77,7 @@ import {useAuthStore} from "@/stores/auth.ts";
 import {useRouter} from "vue-router";
 import type {AService, ServiceInfo} from "@/utils/types.ts";
 import EditComponent from "@/components/EditComponent.vue";
+import Status from "@/components/Status.vue";
 
 const names = ref<string[]>([]);
 const auth = useAuthStore();
@@ -88,6 +85,7 @@ const router = useRouter();
 
 const services = ref<AService[]>([]);
 const service_table = ref<Record<string, ServiceInfo>>({});
+const service_status = ref<Record<string, string>>({});
 
 // 關鍵狀態：記錄目前哪一個項目正在被編輯 (null 表示沒有項目在編輯)
 const editingName = ref<string | null>(null)
@@ -121,6 +119,14 @@ function fix_info(obj: ServiceInfo) {
         }
     }
 }
+async function loadStatus(){
+    const res0 = await axios.get("/api/services/status");
+    const table0: Record<string, string> = {};
+    for (let service of res0.data.services) {
+        table0[service.service_name] = service.status;
+    }
+    service_status.value = table0;
+}
 
 async function loadData() {
     await auth.load();
@@ -139,6 +145,7 @@ async function loadData() {
     }
     names.value = out;
     service_table.value = table
+    await loadStatus();
 }
 
 onMounted(async () => {
@@ -150,6 +157,7 @@ async function handleStart(name: string) {
         const res = await axios.post("/api/services/on", {name: name});
         if (res.status === 200) {
             await show_modal("成功", res.data.message);
+            await loadStatus();
         } else {
             await show_modal("失敗", "Error " + res.status);
         }
@@ -163,6 +171,7 @@ async function handleStop(name: string) {
         const res = await axios.post("/api/services/off", {name: name});
         if (res.status === 200) {
             await show_modal("成功", res.data.message);
+            await loadStatus();
         } else {
             await show_modal("失敗", "Error " + res.status);
         }
@@ -176,6 +185,7 @@ async function handleRemove(name: string) {
         const res = await axios.post("/api/services/remove", {name: name});
         if (res.status === 200) {
             await show_modal("成功", res.data.message);
+            await loadStatus();
         } else {
             await show_modal("失敗", "Error " + res.status);
         }

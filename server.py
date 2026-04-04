@@ -14,7 +14,7 @@ from modules.auth import verify_password, create_access_token, get_password_hash
     check_admin, UserInfo, ACCESS_TOKEN_EXPIRE_MINUTES
 from modules.data import get_db, UserDB, Base, engine, SessionLocal, ServicesDB
 from modules.services import ServiceInfo, get_default_service_info, update_nginx_conf, restart_nginx, service_on, \
-    service_off, service_remove
+    service_off, service_remove, is_on
 
 
 @asynccontextmanager
@@ -104,6 +104,21 @@ async def get_services(current_user: UserInfo = Depends(check_login), db: Sessio
         ret.append(AService(service_name=service.service_name, host=service.host, info=service.info))
     return ServiceList(services=ret)
 
+class AServiceStatus(BaseModel):
+    service_name: str
+    status: str
+
+class ServiceStatusList(BaseModel):
+    services: list[AServiceStatus]
+
+@app.get("/api/services/status")
+async def get_services_status(current_user: UserInfo = Depends(check_login), db: Session = Depends(get_db)) -> ServiceStatusList:
+    services = db.query(ServicesDB).all()
+    ret: list[AServiceStatus] = []
+    for service in services:
+        ret.append(AServiceStatus(service_name=service.service_name, status=is_on(service)))
+    return ServiceStatusList(services=ret)
+
 class ServiceCreate(BaseModel):
     name: str
 
@@ -175,4 +190,4 @@ async def stop_service(user_in: ServiceCreate, current_user: UserInfo = Depends(
     if service is None:
         raise HTTPException(status_code=400, detail="服務不存在")
     await service_remove(service)
-    return Message(message="停止成功")
+    return Message(message="刪除成功")

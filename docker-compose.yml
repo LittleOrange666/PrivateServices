@@ -17,7 +17,7 @@ services:
       backend:
         condition: service_healthy
   backend:
-    image: littleorange666/private_services:0.0.19
+    image: littleorange666/private_services:0.0.20
     environment:
       - TZ=Asia/Taipei
       - DOCKER_HOST=unix:///app/docker.sock
