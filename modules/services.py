@@ -227,7 +227,10 @@ async def service_remove(service: ServicesDB):
             client = docker.from_env()
             name = service.service_name + "_container"
             try:
-                client.containers.get(name).remove()
+                container = client.containers.get(name)
+                if container.status == "running":
+                    container.stop()
+                container.remove()
             except NotFound:
                 raise HTTPException(status_code=400, detail="服務未啟動")
 
