@@ -5,4 +5,4 @@ Set-Location ..
 if (Test-Path dist) {
     Remove-Item -Path dist -Recurse -Force
 }
-Copy-Item -Recurse -Force vue-app/dist dist
+Move-Item vue-app/dist dist

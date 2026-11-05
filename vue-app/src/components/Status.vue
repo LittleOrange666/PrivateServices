@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-type StatusType = 'running' | 'stopped' | 'error' | 'idle';
+export type StatusType = 'running' | 'stopped' | 'error' | 'idle';
 interface Props{
     status: StatusType
 }
